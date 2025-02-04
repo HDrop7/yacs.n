@@ -176,7 +176,7 @@ class Professor:
                 """
             return self.db_conn.execute(sql, (email,), True)
 
-    #seraches professors who are in a certain department
+    #searches professors who are in a certain department
     def get_professors_by_department(self,department): 
         sql = """
                 select
