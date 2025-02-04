@@ -28,7 +28,20 @@
           {{ courseObj.description }}
         </b-col>
       </b-row>
-      <b-button @click="$router.go(-1)">Back</b-button>
+      <b-row class="mt-3">
+  <b-col class="d-flex">
+    <!-- Back Button -->
+    <b-button variant="secondary" @click="$router.go(-1)">Back</b-button>
+    
+    <!-- Add Course Button with little margin and custom red color -->
+    <b-button 
+      variant="danger" 
+      @click="addCourseToSchedule"
+      class="ml-2" 
+      style="background-color: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6);" >Add Course</b-button>
+  </b-col>
+</b-row>
+
       <!--      :to="'/explore/' + courseObj.department"-->
     </div>
     <CenterSpinner
