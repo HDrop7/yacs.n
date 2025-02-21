@@ -33,16 +33,20 @@
     <!-- Back Button -->
     <b-button variant="secondary" @click="$router.go(-1)">Back</b-button>
     
-    <!-- Add Course Button with little margin and custom red color -->
+    <!-- Add Course Button -->
     <b-button 
-      variant="danger" 
-      @click="addCourseToSchedule"
-      class="ml-2" 
-      style="background-color: rgba(40, 167, 69, 0.3); border-color: rgba(40, 167, 69, 0.6);" >Add Course</b-button>
+    variant="secondary" 
+    @click="addCourseToSchedule"
+    class="ml-2" 
+    :style="addButtonStyle"
+    >
+    Add
+  </b-button>
+
   </b-col>
 </b-row>
 
-      <!--      :to="'/explore/' + courseObj.department"-->
+           <!-- :to="'/explore/' + courseObj.department" -->
     </div>
     <CenterSpinner
       v-else-if="isLoadingCourses"
@@ -106,6 +110,17 @@ export default {
     generateRequirementsText,
   },
   computed: {
+
+    // Styles for the Add button
+    addButtonStyle() {
+    return {
+      backgroundColor: "#28a745",
+      color: "white",
+      border: "none",
+      transition: "background-color 0.3s, border-color 0.3s",
+    };
+  },
+
     ...mapState(["isLoadingCourses"]),
     ...mapGetters([COURSES]),
     transformed() {
