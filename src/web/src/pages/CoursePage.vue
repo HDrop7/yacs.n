@@ -8,7 +8,7 @@
           <h4 class="mb-1 d-inline">{{ courseName }}</h4>
           &nbsp;
           <div class="d-inline">
-            <course-sections-open-badge :course="courseObj" />
+            <course-sections-open-badge :course="courseObj" />``
           </div>
         </b-col>
       </b-row>
@@ -29,24 +29,21 @@
         </b-col>
       </b-row>
       <b-row class="mt-3">
-  <b-col class="d-flex">
-    <!-- Back Button -->
-    <b-button variant="secondary" @click="$router.go(-1)">Back</b-button>
-    
-    <!-- Add Course Button -->
-    <b-button 
-    variant="secondary" 
-    @click="addCourseToSchedule"
-    class="ml-2" 
-    :style="addButtonStyle"
-    >
-    Add
-  </b-button>
-
-  </b-col>
-</b-row>
-
-           <!-- :to="'/explore/' + courseObj.department" -->
+        <b-col class="d-flex">
+          <!-- Back Button -->
+          <b-button variant="secondary" @click="$router.go(-1)">Back</b-button>
+          
+          <!-- Add/Remove Course Button -->
+          <b-button 
+            variant="secondary" 
+            @click="toggleCourse(courseObj)"
+            class="ml-2" 
+            :style="courseObj.selected ? removeButtonStyle : addButtonStyle"
+          >
+            {{ courseObj.selected ? "Remove" : "Add" }}
+          </b-button>
+        </b-col>
+      </b-row>
     </div>
     <CenterSpinner
       v-else-if="isLoadingCourses"
@@ -78,6 +75,13 @@ import { generateRequirementsText } from "@/utils";
 import CenterSpinnerComponent from "../components/CenterSpinner.vue";
 import CourseSectionsOpenBadge from "../components/CourseSectionsOpenBadge.vue";
 
+import { SelectedCoursesCookie } from "../controllers/SelectedCoursesCookie";
+import {
+  addStudentCourse,
+  getStudentCourses,
+  removeStudentCourse,
+} from "@/services/YacsService";
+
 export default {
   components: {
     CenterSpinner: CenterSpinnerComponent,
@@ -87,6 +91,8 @@ export default {
   data() {
     return {
       courseName: this.$route.params.course,
+      selectedCourse: this.$route.params.courseObj,
+      selectedCourses: {},
       breadcrumbNav: [
         {
           text: "YACS",
@@ -108,21 +114,127 @@ export default {
   },
   methods: {
     generateRequirementsText,
+    addCourse(course) {
+      this.$set(this.selectedCourses, course.id, course);
+      course.selected = true;
+      if (this.isLoggedIn) {
+        addStudentCourse({
+          name: course.name,
+          semester: this.selectedSemester,
+          cid: "-1",
+        });
+      } else {
+        SelectedCoursesCookie.load(this.$cookies)
+          .semester(this.selectedSemester)
+          .addCourse(course)
+          .save();
+      }
+      course.sections.forEach((section) =>
+        this.addCourseSection(course, section)
+      );
+    },
+    addCourseSection(course, section) {
+      section.selected = true;
+      if (this.isLoggedIn) {
+        addStudentCourse({
+          name: course.name,
+          semester: this.selectedSemester,
+          cid: section.crn,
+        });
+      } else {
+        SelectedCoursesCookie.load(this.$cookies)
+          .semester(this.selectedSemester)
+          .addCourseSection(course, section)
+          .save();
+      }
+    },
+    removeCourse(course) {
+      this.$delete(this.selectedCourses, course.id);
+      course.selected = false;
+
+      course.sections.forEach((section) => this.removeCourseSection(section));
+
+      if (this.isLoggedIn) {
+        removeStudentCourse({
+          name: course.name,
+          semester: this.selectedSemester,
+          cid: null,
+        });
+      } else {
+        SelectedCoursesCookie.load(this.$cookies)
+          .semester(this.selectedSemester)
+          .removeCourse(course)
+          .save();
+      }
+    },
+    removeCourseSection(section) {
+      if (section.selected) {
+        section.selected = false;
+
+        if (this.isLoggedIn) {
+          removeStudentCourse({
+            name: section.department + "-" + section.level,
+            semester: this.selectedSemester,
+            cid: section.crn,
+          });
+        } else {
+          SelectedCoursesCookie.load(this.$cookies)
+            .semester(this.selectedSemester)
+            .removeCourseSection(section)
+            .save();
+        }
+      }
+    },
+    toggleCourse(course) {
+      if (course.selected) {
+        this.removeCourse(course);
+      } else {
+        this.addCourse(course);
+      }
+    },
+    async loadSelectedCourses() {
+      if (this.isLoggedIn) {
+        const cids = await getStudentCourses();
+        cids.forEach((cid) => {
+          if (cid.semester === this.selectedSemester) {
+            const course = this.courses.find(
+              (course) => course.name === cid.course_name
+            );
+            if (course) {
+              this.$set(this.selectedCourses, course.id, course);
+              course.selected = true;
+            }
+          }
+        });
+      } else {
+        const selectedCoursesCookie = SelectedCoursesCookie.load(this.$cookies);
+        try {
+          selectedCoursesCookie
+            .semester(this.selectedSemester)
+            .selectedCourses.forEach((selectedCourse) => {
+              const course = this.courses.find(
+                (course) => course.id === selectedCourse.id
+              );
+              if (course) {
+                this.$set(this.selectedCourses, course.id, course);
+                course.selected = true;
+              }
+            });
+        } catch (err) {
+          selectedCoursesCookie.clear().save();
+        }
+      }
+    },
   },
   computed: {
-
-    // Styles for the Add button
-    addButtonStyle() {
-    return {
-      backgroundColor: "#28a745",
-      color: "white",
-      border: "none",
-      transition: "background-color 0.3s, border-color 0.3s",
-    };
-  },
-
     ...mapState(["isLoadingCourses"]),
     ...mapGetters([COURSES]),
+    isLoggedIn() {
+      return this.$store.getters.isLoggedIn;
+    },
+    selectedSemester() {
+      return this.$store.state.selectedSemester;
+    },
     transformed() {
       let precoreqtext = this.courseObj.raw_precoreqs;
       if (precoreqtext === null) {
@@ -151,7 +263,11 @@ export default {
       return precoreqtext;
     },
     courseObj() {
-      return this.courses.find((course) => course.name === this.courseName);
+      const course = this.courses.find((course) => course.name === this.courseName);
+      if (course) {
+        course.selected = !!this.selectedCourses[course.id];
+      }
+      return course;
     },
     getCredits() {
       var credits;
@@ -164,34 +280,27 @@ export default {
       }
       return credits;
     },
+    // Styles for the Add button
+    addButtonStyle() {
+      return {
+        backgroundColor: "#28a745",
+        color: "white",
+        border: "none",
+        transition: "background-color 0.3s, border-color 0.3s",
+      };
+    },
+    // Styles for the Remove button
+    removeButtonStyle() {
+      return {
+        backgroundColor: "#dc3545",
+        color: "white",
+        border: "none",
+        transition: "background-color 0.3s, border-color 0.3s",
+      };
+    },
   },
-  metaInfo() {
-    return {
-      title: this.courseObj.name,
-      titleTemplate: "%s | YACS",
-      meta: !this.courseObj
-        ? undefined
-        : [
-            {
-              vmid: "description",
-              name: "description",
-              content: this.courseObj.description,
-            },
-            {
-              vmid: "keywords",
-              content: [
-                this.courseObj.full_title,
-                this.courseObj.name,
-                this.courseObj.department,
-                this.courseObj.level,
-                this.courseObj.school,
-                "RPI",
-                "YACS",
-                "Rensselaer Polytechnic Institute",
-              ].join(", "),
-            },
-          ],
-    };
+  mounted() {
+    this.loadSelectedCourses();
   },
 };
 </script>
