@@ -8,7 +8,7 @@
           <h4 class="mb-1 d-inline">{{ courseName }}</h4>
           &nbsp;
           <div class="d-inline">
-            <course-sections-open-badge :course="courseObj" />``
+            <course-sections-open-badge :course="courseObj" />
           </div>
         </b-col>
       </b-row>
@@ -229,8 +229,9 @@ export default {
   computed: {
     ...mapState(["isLoadingCourses"]),
     ...mapGetters([COURSES]),
+    ...mapGetters("user", ["isLoggedIn"]),
     isLoggedIn() {
-      return this.$store.getters.isLoggedIn;
+      return this.$store.getters["user/isLoggedIn"];
     },
     selectedSemester() {
       return this.$store.state.selectedSemester;
