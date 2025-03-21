@@ -6,12 +6,24 @@
                 This is the account page, where you view and edit your account info. It's currently under construction, come back later!
             </p>
         </div>
+        <!-- todo add some functionality -->
     </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 export default {
     name: "Account",
+    data() {
+        return {
+            user: null
+        }
+    },
+    computed: {
+        ...mapGetters('user', {
+            currentUser: 'CURRENT_USER_INFO'
+    })
+}
 }
 </script>
 

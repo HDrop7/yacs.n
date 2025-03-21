@@ -41,6 +41,17 @@
         <b-modal id="signup-modal" hide-footer title="Sign Up">
           <SignUpForm @submit="onSignUp()" />
         </b-modal>
+        <b-button
+          id="forgot-password-button"
+          v-b-modal.forgot-password-modal
+          variant="link"
+          style="padding-top: 12px;"
+        >
+          Forgot Password?
+        </b-button>
+        <b-modal id="forgot-password-modal" hide-footer title="Reset Password">
+          <ForgotPasswordForm @submit="onForgotPassword()" />
+        </b-modal>
       </b-button-group>
     </div>
   </b-form>
@@ -87,6 +98,9 @@ export default {
     },
     onSignUp() {
       this.$refs["signup-modal"].hide();
+    },
+    onForgotPassword() {
+      this.$refs["forgot-password-modal"].hide();
     },
     onReset(evt) {
       evt.preventDefault();
