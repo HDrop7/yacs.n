@@ -23,3 +23,6 @@ export const logout = (sessionId) =>
       "Content-Type": "application/json",
     },
   });
+
+export const getUserByEmail = (email) =>
+  client.post("/forgot-password", { email });

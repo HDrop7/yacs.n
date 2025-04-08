@@ -30,6 +30,7 @@
         >
           New to YACS?
         </button>
+        <!-- Sign Up -->
         <b-button
           id="signup-button"
           v-b-modal.signup-modal
@@ -41,6 +42,7 @@
         <b-modal id="signup-modal" hide-footer title="Sign Up">
           <SignUpForm @submit="onSignUp()" />
         </b-modal>
+        <!-- Forgot Password -->
         <b-button
           id="forgot-password-button"
           v-b-modal.forgot-password-modal
@@ -50,7 +52,7 @@
           Forgot Password?
         </b-button>
         <b-modal id="forgot-password-modal" hide-footer title="Reset Password">
-          <ForgotPasswordForm @submit="onForgotPassword()" />
+          <ResetPasswordForm @submit="onForgotPassword()" />
         </b-modal>
       </b-button-group>
     </div>
@@ -60,12 +62,14 @@
 <script>
 import { mapGetters } from "vuex";
 import SignUpComponent from "@/components/SignUp";
+import ForgotPasswordComponent from "@/components/ForgotPassword"
 import { userTypes } from "../store/modules/user";
 
 export default {
   name: "Login",
   components: {
     SignUpForm: SignUpComponent,
+    ResetPasswordForm: ForgotPasswordComponent,
   },
   data() {
     return {
