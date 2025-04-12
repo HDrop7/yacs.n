@@ -52,7 +52,7 @@
           disabled="disabled"
           class="btn btn-link disabled"
         >
-          Already have an account?
+          Locked out of your account?
         </button>
         <b-button
           id="forgot-password-button"
