@@ -20,7 +20,9 @@
       ></b-form-input>
     </b-form-group>
     <b-button type="submit" variant="primary">Submit</b-button>
-    <div>
+
+    <!-- Sign Up Section -->
+    <div class="mt-1">
       <b-button-group size="md">
         <button
           style="padding-left: 0; padding-right: 0; padding-top: 12px;"
@@ -30,7 +32,6 @@
         >
           New to YACS?
         </button>
-        <!-- Sign Up -->
         <b-button
           id="signup-button"
           v-b-modal.signup-modal
@@ -39,10 +40,20 @@
         >
           Sign up now.
         </b-button>
-        <b-modal id="signup-modal" hide-footer title="Sign Up">
-          <SignUpForm @submit="onSignUp()" />
-        </b-modal>
-        <!-- Forgot Password -->
+      </b-button-group>
+    </div>
+
+    <!-- Forgot Password Section -->
+    <div class="mt-1">
+      <b-button-group class="md">
+      <button
+          style="padding-left: 0; padding-right: 0; padding-top: 12px;"
+          type="button"
+          disabled="disabled"
+          class="btn btn-link disabled"
+        >
+          Already have an account?
+        </button>
         <b-button
           id="forgot-password-button"
           v-b-modal.forgot-password-modal
@@ -51,11 +62,16 @@
         >
           Forgot Password?
         </b-button>
-        <b-modal id="forgot-password-modal" hide-footer title="Reset Password">
-          <ResetPasswordForm @submit="onForgotPassword()" />
-        </b-modal>
       </b-button-group>
     </div>
+
+    <b-modal id="signup-modal" hide-footer title="Sign Up">
+      <SignUpForm @submit="onSignUp()" />
+    </b-modal>
+
+      <b-modal id="forgot-password-modal" hide-footer title="Reset Password">
+        <ResetPasswordForm @submit="onForgotPassword()" />
+      </b-modal>
   </b-form>
 </template>
 
