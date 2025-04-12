@@ -173,3 +173,22 @@ def add_user(form):
         return msg.error_msg("Failed to add user.")
 
     return msg.success_msg({"msg": "User added successfully."})
+
+def check_email(form):
+    if not assert_keys_in_form_exist(form, ['email']):
+        return msg.error_msg("Email required.")
+    
+    email = form['email']
+    users = UserModel()
+    
+    try:
+        findUser = users.get_user(email=email, enable=True)
+        
+        if findUser is None:
+            return msg.error_msg("Failed to find user.")
+        
+        exists = len(findUser) > 0
+        return msg.success_msg({"exists": exists})
+    
+    except Exception as e:
+        return msg.error_msg(f"Error checking email: {str(e)}")

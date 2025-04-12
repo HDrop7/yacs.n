@@ -382,3 +382,18 @@ async def remove_professor(email:str):
     print(email)
     professor, error = professor_info.remove_professor(email)
     return professor if not error else Response(str(error), status_code=500)
+
+@app.get('/api/user/email/{email}')
+async def check_email(email: str):
+    try:
+        user_data, error = users.get_user(email=email, enable=True)
+        
+        if error:
+            return Response(content=error, status_code=500)
+        
+        if not user_data or len(user_data) == 0:
+            return Response(content="Email not found", status_code=404)
+        
+        return user_data[0]
+    except Exception as e:
+        return Response(content=f"Error checking email: {str(e)}", status_code=500)

@@ -24,5 +24,4 @@ export const logout = (sessionId) =>
     },
   });
 
-export const getUserByEmail = (email) =>
-  client.post("/forgot-password", { email });
+export const getUserByEmail = (email) => client.get(`/api/user/email/${encodeURIComponent(email)}`);

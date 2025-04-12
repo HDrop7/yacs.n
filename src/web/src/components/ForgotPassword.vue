@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     async onSubmit() {
-      // Basic email validation
+      // email validation
       const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email);
       this.emailState = emailValid;
       if (!emailValid) return;
@@ -55,39 +55,35 @@ export default {
       this.loading = true;
       
       try {
-        let {
-          data: { success, errMsg },
-        } = await getUserByEmail(this.email);
         const response = await getUserByEmail(this.email);
         console.log("Full response: " + response);
-        
-        if (!success) {
-          this.$bvToast.toast(errMsg, {
-            title: "Error!",
-            variant: "danger",
-            noAutoHide: false,
-            autoHideDelay: 5000,
-          })
-          return;
-        }
 
-        // Show success toast if request worked
-        this.$bvToast.toast("Sending link...", {
+        this.$bvToast.toast("User found!", {
           title: "Success!",
           variant: "success",
           noAutoHide: false,
           autoHideDelay: 2500,
         });
-      } catch (error) {
-        this.$bvToast.toast(error, {
-          title: "Error!",
-          variant: "danger",
-          noAutoHide: false,
-          autoHideDelay: 2500,
-        })
+      }
+      catch (err) {
+        if (err.response?.status == 404) {
+          this.$bvToast.toast("No user with this email", {
+            title: "Not found",
+            variant: "warning",
+            noAutoHide: false,
+            autoHideDelay: 2500,
+          })
+        } else {
+          this.$bvToast.toast("Error: " + err.message, {
+            title: "Error!",
+            variant: "danger",
+            noAutoHide: false,
+            autoHideDelay: 2500,
+          })
+        }
       } finally {
         this.loading = false;
-      }
+      }    
 
         /*
         To reset the password,
